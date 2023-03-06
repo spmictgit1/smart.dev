@@ -84,7 +84,7 @@
                                     <input class="form-check-input" name="remember" type="checkbox" id="remember"
                                         style="vertical-align: middle;"/>
                                     <label class="form-check-label" for="remember" style="vertical-align: middle;">
-                                        Remember me
+                                        Remember me ....
                                     </label>
                                 </div>
                             </div>
