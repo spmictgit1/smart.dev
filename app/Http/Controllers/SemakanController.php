@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-
+use Illuminate\Support\Facades\Validator;
 
 use App\Http\Requests\Admin\StoreDatamuridsRequest;
 use App\Http\Requests\Admin\UpdateDatamuridsRequest;
@@ -40,6 +40,17 @@ class SemakanController extends Controller
    // if(!$datamurid)
    $status = DB::table('status')->first();
     // dd($status);
+	 $validator = Validator::make($request->all(), [
+      'nokp' => 'required|numeric|digits:12',
+  ]);
+
+  if ($validator->fails()) {
+      return redirect()->back()->with(['error' => 'Maaf, No Kad Pengenalan yang dimasukkan tidak mengikut format 12 digit']);
+  }
+// Validation passed, continue with your code     
+	    
+	    
+	    
    $datamurid = Datamurid::where('nokp', $request->nokp)->first();
     if ($datamurid != "")
 	
