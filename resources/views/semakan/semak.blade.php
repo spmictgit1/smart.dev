@@ -41,7 +41,7 @@
 
                                     <div class="card-body">
                                         <div class="form-group">
-                                            <h5 class="text-muted">SEMAKAN PENEMPATAN MURID TINGKATAN 1 2022</h5>
+                                            <h5 class="text-muted">SEMAKAN PENEMPATAN MURID TINGKATAN 1 2023</h5>
                                             
                                             <input type="text" class="form-control" name="nokp"
                                                 placeholder="Masukkan No.KP" required>
