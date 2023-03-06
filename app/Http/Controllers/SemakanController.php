@@ -102,7 +102,7 @@ class SemakanController extends Controller
     else
       {
         
-    return redirect()->route('semak')->with(['error' => 'Maaf, No Kad Pengenalan tiada dalam senarai pemohon atau tidak sah. Sila cuba lagi']);
+    return redirect()->route('semak')->with(['error' => 'Maaf, No Kad Pengenalan tiada dalam senarai pemohon']);
       }
      
   }
