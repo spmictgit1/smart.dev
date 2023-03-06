@@ -92,7 +92,7 @@
                             <div class="row">
                                 <div class="col-6">
                                     <button type="submit" class="btn btn-primary px-4">
-                                        Login
+                                        Login ..
                                     </button>
                                 </div>
                                 <div class="col-6 text-right">
