@@ -140,320 +140,289 @@ class DatamuridsController extends Controller
      }
     }
     
-    public function cari(Request $request)
-{   
-   
-   if (Auth::user()->kod_organisasi == 'jpnm') {
-   
-   $listsekolahpilihan_kaa = DB::table('datasekolahs')
-   ->select(DB::raw('SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI,
+ public function cari(Request $request)
+    {
+        //// FUNGSI TAPISAN CALON YANG BERFUNGSI.
+        if (Auth::user()->kod_organisasi == 'jpnm') {
+            $listsekolahpilihan_kaa = DB::table('datasekolahs')
+                ->selectRaw(
+                    'SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI,
+                SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as JUM_PEREMPUAN,
+                quota_L_kaa-SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as BEZA_L,
+                quota_P_kaa-SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as BEZA_P,
+                quota_L_kaa,quota_P_kaa,ds_nama_sekolah,kod_sekolah,ppd',
+                )
+                ->leftJoin('datamurids', function ($join) {
+                    $join->on('datasekolahs.kod_sekolah', '=', 'datamurids.KOD_PENEMPATAN');
+                })
+                ->where('sekolah_kaa', '=', 'KAA')
+                ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
+                ->groupBy('quota_L_kaa', 'quota_P_kaa', 'ds_nama_sekolah', 'kod_sekolah', 'ppd')
+                ->get();
+
+            $listsekolahpilihan_sabk_dini = DB::table('datasekolahs')
+                ->selectRaw(
+                    'SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI,
+                SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as JUM_PEREMPUAN,
+                quota_L_sabk_dini-SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as BEZA_L,
+                quota_P_sabk_dini-SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as BEZA_P,
+                quota_L_sabk_dini,quota_P_sabk_dini,ds_nama_sekolah,kod_sekolah,ppd',
+                )
+                ->leftJoin('datamurids', function ($join) {
+                    $join->on('datasekolahs.kod_sekolah', '=', 'datamurids.KOD_PENEMPATAN');
+                })
+                ->where('sekolah_sabk_dini', '=', 'DINI')
+                ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
+                ->groupBy('quota_L_sabk_dini', 'quota_P_sabk_dini', 'ds_nama_sekolah', 'kod_sekolah', 'ppd')
+                ->get();
+
+            $listsekolahpilihan_sabk_tahfiz = DB::table('datasekolahs')
+                ->selectRaw('SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI')
+                ->selectRaw('SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as JUM_PEREMPUAN')
+                ->selectRaw('quota_L_sabk_tahfiz-SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as BEZA_L')
+                ->selectRaw('quota_P_sabk_tahfiz-SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as BEZA_P')
+                ->select('quota_L_sabk_tahfiz', 'quota_P_sabk_tahfiz', 'ds_nama_sekolah', 'kod_sekolah', 'ppd')
+                ->leftJoin('datamurids', 'datasekolahs.kod_sekolah', '=', 'datamurids.KOD_PENEMPATAN')
+                ->where('sekolah_sabk_tahfiz', '=', 'TAHFIZ')
+                ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
+                ->groupBy('quota_L_sabk_tahfiz', 'quota_P_sabk_tahfiz', 'ds_nama_sekolah', 'kod_sekolah', 'ppd')
+                ->get();
+
+            $datasekolah = Datasekolah::all();
+            /////////////////////// mula jpn
+            $datamurids = Datamurid::query();
+
+            if ($request->nokp) {
+                $datamurids->where('nokp', 'LIKE', '%' . $request->nokp . '%');
+            }
+
+            if ($request->nama) {
+                $datamurids->where('nama', 'LIKE', '%' . $request->nama . '%');
+            }
+
+            if ($request->pilihjantina) {
+                $datamurids->where('kod_jantina', 'LIKE', '%' . $request->pilihjantina . '%');
+            }
+
+            if ($request->pilih_sek_rendah) {
+                $datamurids->where('NAMA_SEKOLAH', 'LIKE', '%' . $request->pilih_sek_rendah . '%');
+            }
+            if ($request->pils1) {
+                $datamurids->where('KOD_SEKOLAH_P1', 'LIKE', '%' . $request->pils1 . '%');
+            }
+
+            if ($request->pils2) {
+                $datamurids = $datamurids->where('KOD_SEKOLAH_P2', 'LIKE', '%' . $request->pils2 . '%');
+            }
+            if ($request->pils3) {
+                $datamurids->where('KOD_SEKOLAH_P3', 'LIKE', '%' . $request->pils3 . '%');
+            }
+
+            if ($request->pilih_tahap_sukan) {
+                $datamurids = $datamurids->where('TAHAP_SUKAN', 'LIKE', '%' . $request->pilih_tahap_sukan . '%');
+            }
+
+            if ($request->p1) {
+                $datamurids->where('KOD_SEKOLAH_P1', '=', $request->KOD_SEKOLAH_P1);
+            }
+
+            if ($request->p2) {
+                $datamurids->where('KOD_SEKOLAH_P2', '=', $request->KOD_SEKOLAH_P2);
+            }
+            if ($request->p3) {
+                $datamurids->where('KOD_SEKOLAH_P3', '=', $request->KOD_SEKOLAH_P3);
+            }
+
+            ///PENILAIAN PENEMPATAN
+            if ($request->tp_bahasa_arab) {
+                $datamurids->where('BAHASA_ARAB', 'LIKE', '%' . $request->tp_bahasa_arab . '%');
+            }
+            if ($request->khas_islam) {
+                $datamurids->where('PERINGKAT_KHAS_ISLAM', 'LIKE', '%' . $request->khas_islam . '%');
+            }
+            if ($request->meritmax) {
+                $datamurids->where('point', '<=', $request->meritmax);
+            }
+            if ($request->meritmin) {
+                $datamurids->where('point', '>=', $request->meritmin);
+            }
+
+            ///STATUS PENEMPATAN//
+
+            if ($request->sekpenempatan) {
+                $datamurids->where('KOD_PENEMPATAN', 'LIKE', '%' . $request->sekpenempatan . '%');
+            }
+            if ($request->sudah_penempatan) {
+                $datamurids->where('KOD_PENEMPATAN', '!=', '');
+            }
+            if ($request->belum_penempatan) {
+                $datamurids->where('KOD_PENEMPATAN', '=', '');
+            }
+
+            if ($request->pemohon_rayuan) {
+                $datamurids->where(function ($query) {
+                    $query
+                        ->whereNotNull('NAMA_SR1')
+                        ->where('NAMA_SR1', '!=', 'BATAL')
+                        ->where('NAMA_SR1', '!=', '')
+                        ->orWhere(function ($query) {
+                            $query
+                                ->whereNotNull('NAMA_SR2')
+                                ->where('NAMA_SR2', '!=', '')
+                                ->where('NAMA_SR2', '!=', 'BATAL');
+                        });
+                });
+            }
+
+            $datamurids = $datamurids->orderby('point', 'desc')->paginate(100);
+
+            return view('datamurids.index', compact('datamurids', 'datasekolah', 'listsekolahpilihan_kaa', 'listsekolahpilihan_sabk_dini', 'listsekolahpilihan_sabk_tahfiz'));
+
+            /////////////////////// tamat jpn
+        } else {
+            //JIKA PPD
+            $listsekolahpilihan_kaa = DB::table('datasekolahs')
+                ->select(
+                    DB::raw('SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI,
                      SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as JUM_PEREMPUAN,
                      quota_L_kaa-SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as BEZA_L,
                      quota_P_kaa-SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as BEZA_P,
-                     quota_L_kaa,quota_P_kaa,ds_nama_sekolah,kod_sekolah,ppd')) 
+                     quota_L_kaa,quota_P_kaa,ds_nama_sekolah,kod_sekolah,ppd'),
+                )
 
-   ->leftjoin('datamurids','datasekolahs.kod_sekolah' ,'=', 'datamurids.KOD_PENEMPATAN')
-   ->where('sekolah_kaa','=','KAA')
-   ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
-   ->groupBy('quota_L_kaa','quota_P_kaa','ds_nama_sekolah','kod_sekolah','ppd')
-   ->get();
-   
-   $listsekolahpilihan_sabk_dini = DB::table('datasekolahs')
-   ->select(DB::raw('SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI,
+                ->leftjoin('datamurids', 'datasekolahs.kod_sekolah', '=', 'datamurids.KOD_PENEMPATAN')
+                ->where('sekolah_kaa', '=', 'KAA')
+                ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
+                ->groupBy('quota_L_kaa', 'quota_P_kaa', 'ds_nama_sekolah', 'kod_sekolah', 'ppd')
+                ->get();
+
+            $listsekolahpilihan_sabk_dini = DB::table('datasekolahs')
+                ->select(
+                    DB::raw('SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI,
                      SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as JUM_PEREMPUAN,
                      quota_L_sabk_dini-SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as BEZA_L,
                      quota_P_sabk_dini-SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as BEZA_P,
-                     quota_L_sabk_dini,quota_P_sabk_dini,ds_nama_sekolah,kod_sekolah,ppd')) 
+                     quota_L_sabk_dini,quota_P_sabk_dini,ds_nama_sekolah,kod_sekolah,ppd'),
+                )
 
-    ->leftjoin('datamurids','datasekolahs.kod_sekolah' ,'=', 'datamurids.KOD_PENEMPATAN')
-   ->where('sekolah_sabk_dini','=','DINI')
-   ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
-   ->groupBy('quota_L_sabk_dini','quota_P_sabk_dini','ds_nama_sekolah','kod_sekolah','ppd')
-   ->get();
+                ->leftjoin('datamurids', 'datasekolahs.kod_sekolah', '=', 'datamurids.KOD_PENEMPATAN')
+                ->where('sekolah_sabk_dini', '=', 'DINI')
+                ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
+                ->groupBy('quota_L_sabk_dini', 'quota_P_sabk_dini', 'ds_nama_sekolah', 'kod_sekolah', 'ppd')
+                ->get();
 
-   $listsekolahpilihan_sabk_tahfiz = DB::table('datasekolahs')
-   ->select(DB::raw('SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI,
+            $listsekolahpilihan_sabk_tahfiz = DB::table('datasekolahs')
+                ->select(
+                    DB::raw('SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI,
                      SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as JUM_PEREMPUAN,
                      quota_L_sabk_tahfiz-SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as BEZA_L,
                      quota_P_sabk_tahfiz-SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as BEZA_P,
-                     quota_L_sabk_tahfiz,quota_P_sabk_tahfiz,ds_nama_sekolah,kod_sekolah,ppd')) 
+                     quota_L_sabk_tahfiz,quota_P_sabk_tahfiz,ds_nama_sekolah,kod_sekolah,ppd'),
+                )
 
-    ->leftjoin('datamurids','datasekolahs.kod_sekolah' ,'=', 'datamurids.KOD_PENEMPATAN')
-   ->where('sekolah_sabk_tahfiz','=','TAHFIZ')
-   ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
-   ->groupBy('quota_L_sabk_tahfiz','quota_P_sabk_tahfiz','ds_nama_sekolah','kod_sekolah','ppd')
-   ->get();
+                ->leftjoin('datamurids', 'datasekolahs.kod_sekolah', '=', 'datamurids.KOD_PENEMPATAN')
+                ->where('sekolah_sabk_tahfiz', '=', 'TAHFIZ')
+                ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
+                ->groupBy('quota_L_sabk_tahfiz', 'quota_P_sabk_tahfiz', 'ds_nama_sekolah', 'kod_sekolah', 'ppd')
+                ->get();
 
-    $datasekolah = Datasekolah::all();
- 
-    $datamurids = DB::table('datamurids')->select('*');
-      
-//->groupBy('id')    ;  
-//->having('PPD_DM_KOD', '=', Auth::user()->kod_organisasi);
-//->having('PPD_SP1','=', Auth::user()->kod_organisasi)
-//->orhaving('PPD_SP2','=', Auth::user()->kod_organisasi)
-//->orhaving('PPD_SP3','=', Auth::user()->kod_organisasi);
+            $datasekolah = Datasekolah::all();
 
+            /////////////////////// mula jpn
+            $datamurids = Datamurid::query();
 
-   if( $request->nokp){
-       $datamurids = $datamurids->where('nokp', 'LIKE', "%" . $request->nokp . "%");
-   }
-   if( $request->nama){
-       $datamurids = $datamurids->where('nama', 'LIKE', "%" . $request->nama . "%");
-   }
-  if( $request->pilihjantina){
-       $datamurids = $datamurids->where('kod_jantina', 'LIKE', "%" . $request->pilihjantina . "%");
-   }
-   
-   if( $request->pilih_sek_rendah){
-       $datamurids = $datamurids->where('NAMA_SEKOLAH', 'LIKE', "%" . $request->pilih_sek_rendah . "%");
-   }
-   if( $request->pils1){
-       $datamurids = $datamurids->where('KOD_SEKOLAH_P1', 'LIKE', "%" . $request->pils1 . "%");
-   }
-   
-   if( $request->pils2){
-       $datamurids = $datamurids->where('KOD_SEKOLAH_P2', 'LIKE', "%" . $request->pils2 . "%");
-   }
-   if( $request->pils3){
-       $datamurids = $datamurids->where('KOD_SEKOLAH_P3', 'LIKE', "%" . $request->pils3 . "%");
-   }
+            if ($request->nokp) {
+                $datamurids->where('nokp', 'LIKE', '%' . $request->nokp . '%');
+            }
 
+            if ($request->nama) {
+                $datamurids->where('nama', 'LIKE', '%' . $request->nama . '%');
+            }
 
-   if( $request->pilih_tahap_sukan){
-       $datamurids = $datamurids->where('TAHAP_SUKAN', 'LIKE', "%" . $request->pilih_tahap_sukan . "%");
-   }
- 
-    if( $request->p1){
-       $datamurids = $datamurids->where('KOD_SEKOLAH_P1', '=', $request->KOD_SEKOLAH_P1);
+            if ($request->pilihjantina) {
+                $datamurids->where('kod_jantina', 'LIKE', '%' . $request->pilihjantina . '%');
+            }
+
+            if ($request->pilih_sek_rendah) {
+                $datamurids->where('NAMA_SEKOLAH', 'LIKE', '%' . $request->pilih_sek_rendah . '%');
+            }
+            if ($request->pils1) {
+                $datamurids->where('KOD_SEKOLAH_P1', 'LIKE', '%' . $request->pils1 . '%');
+            }
+
+            if ($request->pils2) {
+                $datamurids = $datamurids->where('KOD_SEKOLAH_P2', 'LIKE', '%' . $request->pils2 . '%');
+            }
+            if ($request->pils3) {
+                $datamurids->where('KOD_SEKOLAH_P3', 'LIKE', '%' . $request->pils3 . '%');
+            }
+
+            if ($request->pilih_tahap_sukan) {
+                $datamurids = $datamurids->where('TAHAP_SUKAN', 'LIKE', '%' . $request->pilih_tahap_sukan . '%');
+            }
+
+            if ($request->p1) {
+                $datamurids->where('KOD_SEKOLAH_P1', '=', $request->KOD_SEKOLAH_P1);
+            }
+
+            if ($request->p2) {
+                $datamurids->where('KOD_SEKOLAH_P2', '=', $request->KOD_SEKOLAH_P2);
+            }
+            if ($request->p3) {
+                $datamurids->where('KOD_SEKOLAH_P3', '=', $request->KOD_SEKOLAH_P3);
+            }
+
+            ///PENILAIAN PENEMPATAN
+            if ($request->tp_bahasa_arab) {
+                $datamurids->where('BAHASA_ARAB', 'LIKE', '%' . $request->tp_bahasa_arab . '%');
+            }
+            if ($request->khas_islam) {
+                $datamurids->where('PERINGKAT_KHAS_ISLAM', 'LIKE', '%' . $request->khas_islam . '%');
+            }
+            if ($request->meritmax) {
+                $datamurids->where('point', '<=', $request->meritmax);
+            }
+            if ($request->meritmin) {
+                $datamurids->where('point', '>=', $request->meritmin);
+            }
+
+            ///STATUS PENEMPATAN//
+
+            if ($request->sekpenempatan) {
+                $datamurids->where('KOD_PENEMPATAN', 'LIKE', '%' . $request->sekpenempatan . '%');
+            }
+            if ($request->sudah_penempatan) {
+                $datamurids->where('KOD_PENEMPATAN', '!=', '');
+            }
+            if ($request->belum_penempatan) {
+                $datamurids->where('KOD_PENEMPATAN', '=', '');
+            }
+
+            if ($request->pemohon_rayuan) {
+                $datamurids->where(function ($query) {
+                    $query
+                        ->whereNotNull('NAMA_SR1')
+                        ->where('NAMA_SR1', '!=', 'BATAL')
+                        ->where('NAMA_SR1', '!=', '')
+                        //    ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
+                        ->orWhere(function ($query) {
+                            $query
+                                ->whereNotNull('NAMA_SR2')
+                                ->where('NAMA_SR2', '!=', '')
+                                //     ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
+                                ->where('NAMA_SR2', '!=', 'BATAL');
+                        });
+                });
+            }
+
+            $datamurids = $datamurids->orderby('point', 'desc')->paginate(100);
+
+            return view('datamurids.index', compact('datamurids', 'datasekolah', 'listsekolahpilihan_kaa', 'listsekolahpilihan_sabk_dini', 'listsekolahpilihan_sabk_tahfiz'));
+
+            /////////////////////// tamat jpn
+        }
     }
-
-    if( $request->p2){
-        $datamurids = $datamurids->where('KOD_SEKOLAH_P2', '=', $request->KOD_SEKOLAH_P2);
-     }
-    if( $request->p3){
-        $datamurids = $datamurids->where('KOD_SEKOLAH_P3', '=', $request->KOD_SEKOLAH_P3);
-     }
-
-   ///PENILAIAN PENEMPATAN
-   if( $request->tp_bahasa_arab){
-       $datamurids = $datamurids->where('BAHASA_ARAB', 'LIKE', "%" . $request->tp_bahasa_arab . "%");
-   }
-   if( $request->khas_islam){
-       $datamurids = $datamurids->where('PERINGKAT_KHAS_ISLAM', 'LIKE', "%" . $request->khas_islam . "%");
-   }
-   if( $request->meritmax){
-       $datamurids = $datamurids->where('point', '<=', $request->meritmax);
-   }
-   if( $request->meritmin){
-       $datamurids = $datamurids->where('point', '>=', $request->meritmin);
-   }
-   /*
-   if( $request->jqafmax){
-       $datamurids = $datamurids->where('BAHASA_ARAB', '<=', $request->jqafmax);
-   }
-   if( $request->jqafmin){
-       $datamurids = $datamurids->where('BAHASA_ARAB', '>=', $request->jqafmin);
-   }
-   */
-   ///STATUS PENEMPATAN//
-/*
-   if( $request->sudah_penempatan){
-      $datamurids = $datamurids->whereNotNull('KOD_PENEMPATAN');
-   }
-   if( $request->belum_penempatan){
-       $datamurids = $datamurids->whereNull('KOD_PENEMPATAN');
-   }
-   */
-   
-   if( $request->sekpenempatan){
-       $datamurids = $datamurids->where('KOD_PENEMPATAN', 'LIKE', "%" . $request->sekpenempatan . "%");
-   }
-   if( $request->sudah_penempatan){
-      $datamurids = $datamurids->where('KOD_PENEMPATAN','!=',"");
-   }
-   if( $request->belum_penempatan){
-       $datamurids = $datamurids->where('KOD_PENEMPATAN','=',"");
-   }
-
-
-
- /*  if ($request->pemohon_rayuan) {
-    $datamurids = $datamurids->where(function ($query) {
-        $query->whereNotNull('KOD_SR1')
-              ->orWhereNotNull('KOD_SR2');
-             
-    });
-
-*/
-if ($request->pemohon_rayuan) {
-    $datamurids = $datamurids->where(function($query) {
-        $query->whereNotNull('NAMA_SR1')
-              ->where('NAMA_SR1', '!=', 'BATAL')
-              ->orWhere(function($query) {
-                  $query->whereNotNull('NAMA_SR2')
-                        ->where('NAMA_SR2', '!=', 'BATAL');
-              });
-    });
-}
-   
-
-   
-  
-   $datamurids = $datamurids
-   ->orderby('point','desc')
-   ->paginate(4000);
-
-  return view('datamurids.index', compact('datamurids','datasekolah','listsekolahpilihan_kaa','listsekolahpilihan_sabk_dini','listsekolahpilihan_sabk_tahfiz'));
-}
-else{
-      $listsekolahpilihan_kaa = DB::table('datasekolahs')
-   ->select(DB::raw('SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI,
-                     SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as JUM_PEREMPUAN,
-                     quota_L_kaa-SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as BEZA_L,
-                     quota_P_kaa-SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as BEZA_P,
-                     quota_L_kaa,quota_P_kaa,ds_nama_sekolah,kod_sekolah,ppd')) 
-
-   ->leftjoin('datamurids','datasekolahs.kod_sekolah' ,'=', 'datamurids.KOD_PENEMPATAN')
-   ->where('sekolah_kaa','=','KAA')
-   ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
-   ->groupBy('quota_L_kaa','quota_P_kaa','ds_nama_sekolah','kod_sekolah','ppd')
-   ->get();
-   
-   $listsekolahpilihan_sabk_dini = DB::table('datasekolahs')
-   ->select(DB::raw('SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI,
-                     SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as JUM_PEREMPUAN,
-                     quota_L_sabk_dini-SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as BEZA_L,
-                     quota_P_sabk_dini-SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as BEZA_P,
-                     quota_L_sabk_dini,quota_P_sabk_dini,ds_nama_sekolah,kod_sekolah,ppd')) 
-
-    ->leftjoin('datamurids','datasekolahs.kod_sekolah' ,'=', 'datamurids.KOD_PENEMPATAN')
-   ->where('sekolah_sabk_dini','=','DINI')
-   ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
-   ->groupBy('quota_L_sabk_dini','quota_P_sabk_dini','ds_nama_sekolah','kod_sekolah','ppd')
-   ->get();
-
-   $listsekolahpilihan_sabk_tahfiz = DB::table('datasekolahs')
-   ->select(DB::raw('SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as JUM_LELAKI,
-                     SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as JUM_PEREMPUAN,
-                     quota_L_sabk_tahfiz-SUM(CASE WHEN KOD_JANTINA = "L" THEN 1 ELSE 0 END) as BEZA_L,
-                     quota_P_sabk_tahfiz-SUM(CASE WHEN KOD_JANTINA = "P" THEN 1 ELSE 0 END) as BEZA_P,
-                     quota_L_sabk_tahfiz,quota_P_sabk_tahfiz,ds_nama_sekolah,kod_sekolah,ppd')) 
-
-    ->leftjoin('datamurids','datasekolahs.kod_sekolah' ,'=', 'datamurids.KOD_PENEMPATAN')
-   ->where('sekolah_sabk_tahfiz','=','TAHFIZ')
-   ->where('kod_ppd', '=', Auth::user()->kod_organisasi)
-   ->groupBy('quota_L_sabk_tahfiz','quota_P_sabk_tahfiz','ds_nama_sekolah','kod_sekolah','ppd')
-   ->get();
-
-  $datasekolah = Datasekolah::all();
- 
-   $datamurids = DB::table('datamurids')->select('*') 
-/*
-  $datamurids=DB::table('datamurids')
-  ->Join('datasekolahs','datasekolahs.kod_sekolah','=','datamurids.KOD_PENEMPATAN')
-  ->select('KOD_PENEMPATAN','datamurids.id','datasekolahs.kod_ppd','datasekolahs.ppd','PPD_SP1',
-  'PPD_SP2','PPD_SP3','point','PENEMPATAN','BAHASA_ARAB','LUGHATULQURAN','NAMA','NOKP','KOD_JANTINA',
-  'NAMA_SEKOLAH_P1','NAMA_SEKOLAH_P2','NAMA_SEKOLAH_P3','NAMA_SEKOLAH','ALAMAT_MURID','BANDAR','POSKOD','PEGAWAI_PELULUS')
-  //->get()
-*/
-->having('PPD_SP1','=', Auth::user()->kod_organisasi)
-->orhaving('PPD_SP2','=', Auth::user()->kod_organisasi)
-->orhaving('PPD_SP3','=', Auth::user()->kod_organisasi);
-
-
-   if( $request->nokp){
-       $datamurids = $datamurids->where('nokp', 'LIKE', "%" . $request->nokp . "%");
-   }
-   if( $request->nama){
-       $datamurids = $datamurids->where('nama', 'LIKE', "%" . $request->nama . "%");
-   }
-  if( $request->pilihjantina){
-       $datamurids = $datamurids->where('kod_jantina', 'LIKE', "%" . $request->pilihjantina . "%");
-   }
-   
-   if( $request->pilih_sek_rendah){
-       $datamurids = $datamurids->where('NAMA_SEKOLAH', 'LIKE', "%" . $request->pilih_sek_rendah . "%");
-   }
-   if( $request->pils1){
-       $datamurids = $datamurids->where('KOD_SEKOLAH_P1', 'LIKE', "%" . $request->pils1 . "%");
-   }
-   
-   if( $request->pils2){
-       $datamurids = $datamurids->where('KOD_SEKOLAH_P2', 'LIKE', "%" . $request->pils2 . "%");
-   }
-   if( $request->pils3){
-       $datamurids = $datamurids->where('KOD_SEKOLAH_P3', 'LIKE', "%" . $request->pils3 . "%");
-   }
-
-
-   if( $request->pilih_tahap_sukan){
-       $datamurids = $datamurids->where('TAHAP_SUKAN', 'LIKE', "%" . $request->pilih_tahap_sukan . "%");
-   }
- 
-    if( $request->p1){
-       $datamurids = $datamurids->where('KOD_SEKOLAH_P1', '=', $request->KOD_SEKOLAH_P1);
-    }
-
-    if( $request->p2){
-        $datamurids = $datamurids->where('KOD_SEKOLAH_P2', '=', $request->KOD_SEKOLAH_P2);
-     }
-    if( $request->p3){
-        $datamurids = $datamurids->where('KOD_SEKOLAH_P3', '=', $request->KOD_SEKOLAH_P3);
-     }
-
-   ///PENILAIAN PENEMPATAN
-   if( $request->tp_bahasa_arab){
-       $datamurids = $datamurids->where('BAHASA_ARAB', 'LIKE', "%" . $request->tp_bahasa_arab . "%");
-   }
-   if( $request->khas_islam){
-       $datamurids = $datamurids->where('PERINGKAT_KHAS_ISLAM', 'LIKE', "%" . $request->khas_islam . "%");
-   }
-   if( $request->meritmax){
-       $datamurids = $datamurids->where('point', '<=', $request->meritmax);
-   }
-   if( $request->meritmin){
-       $datamurids = $datamurids->where('point', '>=', $request->meritmin);
-   }
-   /*
-   if( $request->jqafmax){
-       $datamurids = $datamurids->where('BAHASA_ARAB', '<=', $request->jqafmax);
-   }
-   if( $request->jqafmin){
-       $datamurids = $datamurids->where('BAHASA_ARAB', '>=', $request->jqafmin);
-   }
-   */
-   ///STATUS PENEMPATAN//
-/*
-   if( $request->sudah_penempatan){
-      $datamurids = $datamurids->whereNotNull('KOD_PENEMPATAN');
-   }
-   if( $request->belum_penempatan){
-       $datamurids = $datamurids->whereNull('KOD_PENEMPATAN');
-   }
-   */
-   
-   if( $request->sekpenempatan){
-       $datamurids = $datamurids->where('KOD_PENEMPATAN', 'LIKE', "%" . $request->sekpenempatan . "%");
-   }
-   if( $request->sudah_penempatan){
-      $datamurids = $datamurids->where('KOD_PENEMPATAN','!=',"");
-                             //  ->where('kod_ppd', '=', Auth::user()->kod_organisasi);
-   }
-   if( $request->belum_penempatan){
-       $datamurids = $datamurids->where('KOD_PENEMPATAN','=',"");
-   }
-   
-  
-   $datamurids = $datamurids
-   ->orderby('point','desc')
-   ->paginate(4000);
-
-  return view('datamurids.index', compact('datamurids','datasekolah','listsekolahpilihan_kaa','listsekolahpilihan_sabk_dini','listsekolahpilihan_sabk_tahfiz')); 
     
-}
- }
-
  public function massUpdate(Request $request)
 
     { //  dd($request);
