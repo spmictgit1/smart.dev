@@ -101,6 +101,14 @@
                             </table>
                             <div>
                         </form>
+                        <div class="card-header bg-primary">
+                                <h6>MUAT NAIK DATA MURID</h6>
+                            </div>
+                            <form action="/upload-csv" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <input type="file" name="file">
+                                <button type="submit">Muat Naik CSV</button>
+                            </form>
                     </div>
                 </div>
         </div>
