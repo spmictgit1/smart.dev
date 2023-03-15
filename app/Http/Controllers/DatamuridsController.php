@@ -274,7 +274,7 @@ class DatamuridsController extends Controller
                 });
             }
 
-            $datamurids = $datamurids->orderby('point', 'desc')->paginate(100);
+            $datamurids = $datamurids->orderby('point', 'desc')->paginate(4000);
 
             return view('datamurids.index', compact('datamurids', 'datasekolah', 'listsekolahpilihan_kaa', 'listsekolahpilihan_sabk_dini', 'listsekolahpilihan_sabk_tahfiz'));
 
@@ -415,7 +415,7 @@ class DatamuridsController extends Controller
                 });
             }
 
-            $datamurids = $datamurids->orderby('point', 'desc')->paginate(100);
+            $datamurids = $datamurids->orderby('point', 'desc')->paginate(4000);
 
             return view('datamurids.index', compact('datamurids', 'datasekolah', 'listsekolahpilihan_kaa', 'listsekolahpilihan_sabk_dini', 'listsekolahpilihan_sabk_tahfiz'));
 
