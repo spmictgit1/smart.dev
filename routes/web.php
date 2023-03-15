@@ -43,9 +43,11 @@ Route::post   ('datamurids_mass_update', 'DatamuridsController@massUpdate')->nam
 Route::post   ('padampenempatan', 'DatamuridsController@padampenempatan')->name('datamurids.padampenempatan')->middleware('auth');
 
 Route::get('paparcalon.url', 'DatamuridsController@paparcalon')->name('paparcalon.name');
-Route::get('searchfilter','DatamuridsController@cari')->name('searchfilter')->middleware('auth');
+//Route::get('searchfilter','DatamuridsController@cari')->name('searchfilter')->middleware('auth');
 Route::get('filter', 'DatamuridsController@filter')->name('filter')->middleware('auth');
 Route::get('markah', 'MarkahController@markah')->name('markah');
+
+Route::get('searchfilter','TapisController@cari')->name('searchfilter')->middleware('auth');
 
 Route::post('jana.url','DatamuridsController@massjana')->name('jana.name');
 Route::get('janakodppd.url','DatamuridsController@janakodppd')->name('janakodppd.name')->middleware('auth');
