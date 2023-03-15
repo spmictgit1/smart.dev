@@ -76,3 +76,4 @@ Route::post('/statuses', 'StatusController@store')->name('statuses.store');
 Route::get('/rayuan', 'RayuanController@rayuan')->name('rayuan');
 
 Route::get('downloadrayuan','DatamuridsController@downloadData')->name('downloadrayuan.name');
+Route::post('/upload-csv','DatamuridsController@uploadCsv');
