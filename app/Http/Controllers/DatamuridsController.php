@@ -685,6 +685,201 @@ public function massjana()
         return Response::stream($callback, 200, $headers);
     }
 
+     public function uploadCSV(Request $request)
+    {
+        $this->validate($request, [
+            'file' => 'required|mimes:csv,txt',
+        ]);
+
+        $file = $request->file('file');
+        $csv = Reader::createFromPath($file->getRealPath(), 'r');
+        $csv->setHeaderOffset(0);
+        $records = $csv->getRecords();
+
+        foreach ($records as $record) {
+            $NOKP = $record['NOKP'];
+
+            // Check if the record already exists in the database
+            if (Datamurid::where('NOKP', $NOKP)->exists()) {
+                continue; // Skip the record if it already exists
+            }
+            if (!preg_match('/^[0-9]{12}$/', $NOKP)) {
+                //  continue; // Skip the record if it's not a 12 digit number
+                return redirect()
+                    ->back()
+                    ->with('message', 'SILA SEMAK, PASTIKAN NO KAD PENGENALAN ANDA 12 DIGIT');
+            }
+
+            // Insert the record into the database
+            DB::table('datamurids')->insert([
+                //  'NOKP' => $record['NOKP'],
+                // 'NAMA' => $record['NAMA'],
+                // 'id' => $record['id'],
+                'IDMURID' => $record['IDMURID'],
+                'NOKP' => $record['NOKP'],
+                'NAMA' => $record['NAMA'],
+                'KOD_JANTINA' => $record['KOD_JANTINA'],
+                'KAUM' => $record['KAUM'],
+                'AGAMA' => $record['AGAMA'],
+                'WARGANEGARA_MURID' => $record['WARGANEGARA_MURID'],
+                'KOD_SEKOLAH_RENDAH' => $record['KOD_SEKOLAH_RENDAH'],
+                'NAMA_SEKOLAH' => $record['NAMA_SEKOLAH'],
+                'LOKASI_SEKOLAH_RENDAH' => $record['LOKASI_SEKOLAH_RENDAH'],
+                'UNIT_BERUNIFORM' => $record['UNIT_BERUNIFORM'],
+                'JAWATAN_BERUNIFORM' => $record['JAWATAN_BERUNIFORM'],
+                'NAMA_KELAB' => $record['NAMA_KELAB'],
+                'JAWATAN_KELAB' => $record['JAWATAN_KELAB'],
+                'NAMA_SUKAN' => $record['NAMA_SUKAN'],
+                'TAHAP_SUKAN' => $record['TAHAP_SUKAN'],
+                'NAMA_SUKAN_2' => $record['NAMA_SUKAN_2'],
+                'TAHAP_SUKAN_2' => $record['TAHAP_SUKAN_2'],
+                'CAPAIAN_KHAS_ISLAM' => $record['CAPAIAN_KHAS_ISLAM'],
+                'PERINGKAT_KHAS_ISLAM' => $record['PERINGKAT_KHAS_ISLAM'],
+                'KEPIMPINAN' => $record['KEPIMPINAN'],
+                'NAMA_BAPA' => $record['NAMA_BAPA'],
+                'NO_KP_BAPA' => $record['NO_KP_BAPA'],
+                'WARGANEGARA_BAPA' => $record['WARGANEGARA_BAPA'],
+                'KERJA_BAPA' => $record['KERJA_BAPA'],
+                'GAJI_BAPA' => $record['GAJI_BAPA'],
+                'NO_TEL_BAPA' => $record['NO_TEL_BAPA'],
+                'TANGGUNGAN' => $record['TANGGUNGAN'],
+                'NAMA_IBU' => $record['NAMA_IBU'],
+                'NO_KP_IBU' => $record['NO_KP_IBU'],
+                'WARGANEGARA_IBU' => $record['WARGANEGARA_IBU'],
+                'KERJA_IBU' => $record['KERJA_IBU'],
+                'GAJI_IBU' => $record['GAJI_IBU'],
+                'NO_TEL_IBU' => $record['NO_TEL_IBU'],
+                'ALAMAT_MURID' => $record['ALAMAT_MURID'],
+                'BANDAR' => $record['BANDAR'],
+                'POSKOD' => $record['POSKOD'],
+                'NEGERI' => $record['NEGERI'],
+                'KODSEKOLAH_MEN_LULUS' => $record['KODSEKOLAH_MEN_LULUS'],
+                'NAMA_SEKOLAH_MEN_LULUS' => $record['NAMA_SEKOLAH_MEN_LULUS'],
+                'SenaraNamaMurid_NAMA_SEK_DIPOHON' => $record['SenaraNamaMurid_NAMA_SEK_DIPOHON'],
+                'SenaraNamaMurid_KOD_SEK_DIPOHON' => $record['SenaraNamaMurid_KOD_SEK_DIPOHON'],
+                'SenaraNamaMurid_PILIHAN_1' => $record['SenaraNamaMurid_PILIHAN_1'],
+                'SenaraNamaMurid_PILIHAN_2' => $record['SenaraNamaMurid_PILIHAN_2'],
+                'SenaraNamaMurid_PILIHAN_3' => $record['SenaraNamaMurid_PILIHAN_3'],
+                'PILIHAN_4' => $record['PILIHAN_4'],
+                'SETUJU_SEKOLAH_LAIN' => $record['SETUJU_SEKOLAH_LAIN'],
+                'AMBIL_AGAMA' => $record['AMBIL_AGAMA'],
+                'AMBILJQAF' => $record['AMBILJQAF'],
+                'ALQURAN' => $record['ALQURAN'],
+                'PENGUASAAN_JAWI' => $record['PENGUASAAN_JAWI'],
+                'AMALI_WUDUK' => $record['AMALI_WUDUK'],
+                'AMALI_SOLAT' => $record['AMALI_SOLAT'],
+                'PENDIDIKAN_ISLAM' => $record['PENDIDIKAN_ISLAM'],
+                'BAHASA_ARAB' => $record['BAHASA_ARAB'],
+                'AMBILKAFA' => $record['AMBILKAFA'],
+                'TP_BM' => $record['TP_BM'],
+                'TP_BI' => $record['TP_BI'],
+                'TP_MATH' => $record['TP_MATH'],
+                'TP_SAINS' => $record['TP_SAINS'],
+                'TP_PEND_ISLAM_MORAL' => $record['TP_PEND_ISLAM_MORAL'],
+                'TP_BAK' => $record['TP_BAK'],
+                'TP_SEJARAH' => $record['TP_SEJARAH'],
+                'TP_RBT' => $record['TP_RBT'],
+                'TP_TMK' => $record['TP_TMK'],
+                'TP_PEND_KESIHATAN' => $record['TP_PEND_KESIHATAN'],
+                'TP_PEND_JASMANI' => $record['TP_PEND_JASMANI'],
+                'TP_PSV' => $record['TP_PSV'],
+                'TP_MUZIK' => $record['TP_MUZIK'],
+                'AGILIRUPKK' => $record['AGILIRUPKK'],
+                'AMALISOLAT' => $record['AMALISOLAT'],
+                'AMALISOLAT_M' => $record['AMALISOLAT_M'],
+                'PCHI' => $record['PCHI'],
+                'PCHI_M' => $record['PCHI_M'],
+                'baqfield78' => $record['baqfield78'],
+                'ALQURAN_M' => $record['ALQURAN_M'],
+                'ULUMSYARIAH' => $record['ULUMSYARIAH'],
+                'ULUMSYARIAH_M' => $record['ULUMSYARIAH_M'],
+                'JAWIKHAT' => $record['JAWIKHAT'],
+                'JAWIKHAT_M' => $record['JAWIKHAT_M'],
+                'SIRAH' => $record['SIRAH'],
+                'SIRAH_M' => $record['SIRAH_M'],
+                'ADAB' => $record['ADAB'],
+                'ADAB_M' => $record['ADAB_M'],
+                'LUGHATULQURAN' => $record['LUGHATULQURAN'],
+                'LUGHATULQURAN_M' => $record['LUGHATULQURAN_M'],
+                'DISAHKAN' => $record['DISAHKAN'],
+                'TXTTARIKHSERAHGB' => $record['TXTTARIKHSERAHGB'],
+                'MARKAH10' => $record['MARKAH10'],
+                'MARKAH100' => $record['MARKAH100'],
+                'GRED' => $record['GRED'],
+                'BMI_P2' => $record['BMI_P2'],
+                'TAKSIRAN_P2' => $record['TAKSIRAN_P2'],
+                'GRED_P2' => $record['GRED_P2'],
+                'VERBALLINGUISTIK' => $record['VERBALLINGUISTIK'],
+                'LOGIKMATEMATIK' => $record['LOGIKMATEMATIK'],
+                'VISUALRUANG' => $record['VISUALRUANG'],
+                'MUZIK' => $record['MUZIK'],
+                'NATURALIS' => $record['NATURALIS'],
+                'INTRAPERSONAL' => $record['INTRAPERSONAL'],
+                'INTERPERSONAL' => $record['INTERPERSONAL'],
+                'KINESTETIK' => $record['KINESTETIK'],
+                'EKSISTENSIAL' => $record['EKSISTENSIAL'],
+                'SPILISANGRED' => $record['SPILISANGRED'],
+                'SPILISANMARKAH' => $record['SPILISANMARKAH'],
+                'SPIHAFAZANGRED' => $record['SPIHAFAZANGRED'],
+                'SPIHAFAZANMARKAH' => $record['SPIHAFAZANMARKAH'],
+                'SPIPIGRED' => $record['SPIPIGRED'],
+                'SPIPIMARKAH' => $record['SPIPIMARKAH'],
+                'SPIPJGRED' => $record['SPIPJGRED'],
+                'SPIPJMARKAH' => $record['SPIPJMARKAH'],
+                'SPIQHGRED' => $record['SPIQHGRED'],
+                'SPIQHMARKAH' => $record['SPIQHMARKAH'],
+                'PILIHAN_1' => $record['PILIHAN_1'],
+                'KOD_SEKOLAH_P1' => $record['KOD_SEKOLAH_P1'],
+                'NAMA_SEKOLAH_P1' => $record['NAMA_SEKOLAH_P1'],
+                'PILIHAN_2' => $record['PILIHAN_2'],
+                'KOD_SEKOLAH_P2' => $record['KOD_SEKOLAH_P2'],
+                'NAMA_SEKOLAH_P2' => $record['NAMA_SEKOLAH_P2'],
+                'PILIHAN_3' => $record['PILIHAN_3'],
+                'KOD_SEKOLAH_P3' => $record['KOD_SEKOLAH_P3'],
+                'NAMA_SEKOLAH_P3' => $record['NAMA_SEKOLAH_P3'],
+                'UPKK' => $record['UPKK'],
+                'SIA' => $record['SIA'],
+                'BA_SIA' => $record['BA_SIA'],
+                'PSJ' => $record['PSJ'],
+                'PMAA' => $record['PMAA'],
+                'NAMA_SEKOLAH_P4' => $record['NAMA_SEKOLAH_P4'],
+                'KOD_PENEMPATAN' => $record['KOD_PENEMPATAN'],
+                'pajsk' => $record['pajsk'],
+                'PENEMPATAN' => $record['PENEMPATAN'],
+                'ALIRAN_PENEMPATAN' => $record['ALIRAN_PENEMPATAN'],
+                'KRK_NAMA_SEK_DIPOHON' => $record['KRK_NAMA_SEK_DIPOHON'],
+                'KAA_NAMA_SEK_DIPOHON' => $record['KAA_NAMA_SEK_DIPOHON'],
+                'SABK_NAMA_SEK_DIPOHON' => $record['SABK_NAMA_SEK_DIPOHON'],
+                'PEGAWAI_PELULUS' => $record['PEGAWAI_PELULUS'],
+                'point_SALAH' => $record['point_SALAH'],
+                'rayuan' => $record['rayuan'],
+                //'updated_at' => $record['updated_at'],
+                //  'created_at' => $record['created_at'],
+                'sahterima' => $record['sahterima'],
+                'point' => $record['point'],
+                'PPD_SP1' => $record['PPD_SP1'],
+                'PPD_SP2' => $record['PPD_SP2'],
+                'PPD_SP3' => $record['PPD_SP3'],
+                'pbd' => $record['pbd'],
+                'STATUS_R' => $record['STATUS_R'],
+                'CATATAN_R' => $record['CATATAN_R'],
+                'f115' => $record['f115'],
+                'f116' => $record['f116'],
+                'f117' => $record['f117'],
+                'KOD_SR1' => $record['KOD_SR1'],
+                'KOD_SR2' => $record['KOD_SR2'],
+                'NAMA_SR1' => $record['NAMA_SR1'],
+                'NAMA_SR2' => $record['NAMA_SR2'],
+                'SEDIA' => $record['SEDIA'],
+
+                // Add more columns as needed
+            ]);
+        }
+
+        return redirect()
+            ->back()
+            ->with('message', 'DATA TELAH BERJAYA DISIMPAN');
+    }
     
    
 }
