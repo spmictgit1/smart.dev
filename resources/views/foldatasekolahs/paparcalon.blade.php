@@ -10,9 +10,14 @@
 
 <div class="w-full mt-8 bg-wh.ite rounded">
 
-    <a id="more" href="#"
-        onclick="$('.details').slideToggle(function(){$('#more').html($('.details').is(':visible')?'TUTUP ATURAN':'UBAH ATURAN');});">MEMBUKA/MENUTUP
-        ATURAN ESMART</a>
+    <div class="card-header bg-primary">
+
+            <h6 id="more" href="#"
+                onclick="$('.details').slideToggle(function(){$('#more').html($('.details').is(':visible')?'TUTUP ATURAN':'TEKAN UNTUK UBAH ATURAN');});">
+                MEMBUKA/MENUTUP
+                ATURAN ESMART</h6>
+
+        </div>
     <div class="details" style="display:none">
         <div class="card-header bg-primary">
 
