@@ -630,7 +630,7 @@ public function massjana()
        return redirect()->back()->with('message', 'DATA DISIMPAN');
     }
        
-    public function janarayuan()
+/*    public function janarayuan()
     {
 
         DB::table('datamurids as dm')
@@ -654,7 +654,24 @@ public function massjana()
         ->update([ 'dm.SEDIA' => DB::raw("`tsr`.`SEDIA`") ]); 
 
        return redirect()->back()->with('message', 'DATA DISIMPAN');
-    }   
+    }   */
+    
+    public function janarayuan()
+    {
+        DB::table('datamurids as dm')
+            ->join('tbrayuans as tsr', 'dm.NOKP', '=', 'tsr.NOKP')
+            ->update([
+                'dm.KOD_SR1' => DB::raw('IFNULL(`tsr`.`KOD_SR1`, "")'),
+                'dm.KOD_SR2' => DB::raw('IFNULL(`tsr`.`KOD_SR2`, "")'),
+                'dm.NAMA_SR1' => DB::raw('IFNULL(`tsr`.`NAMA_SR1`, "")'),
+                'dm.NAMA_SR2' => DB::raw('IFNULL(`tsr`.`NAMA_SR2`, "")'),
+                'dm.SEDIA' => DB::raw('IFNULL(`tsr`.`SEDIA`, "")')
+            ]);
+    
+        return redirect()
+            ->back()
+            ->with('message', 'DATA DISIMPAN');
+    }
 
     public function downloadData()
     {
