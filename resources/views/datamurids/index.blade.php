@@ -107,11 +107,12 @@
                             ALAMAT
                         </th>
                         <th >
-                            SR1
+                            RAYUAN 1
                         </th>
                         <th >
-                            SR2
+                            RAYUAN 2
                         </th>
+                        
                         <th >
                             PANEL
                         </th>
