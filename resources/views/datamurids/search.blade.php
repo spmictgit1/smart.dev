@@ -55,7 +55,7 @@
             </div>
             --}}
 
-            <form action="{{ route('searchfilter') }}" method="POST">
+            <form action="{{ route('searchfilter') }}" method="GET">
             @csrf
                 <div class="row">
                     <div class="col-md-4"> {{--KOLUMN 1--}}<br><br>
