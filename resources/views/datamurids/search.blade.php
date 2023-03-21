@@ -35,7 +35,7 @@
                 {{--<div>
                     <!--div class="card card-primary"-->
 
-                    <form action="{{ route('cari') }}" method="POST">
+                    <form action="{{ route('cari') }}" method="post">
 
                 <div>
                     <div class="form-group">
