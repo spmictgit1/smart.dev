@@ -441,7 +441,7 @@ class DatamuridsController extends Controller
           'KOD_PENEMPATAN'=> explode(">",$namasekolah)[1]
           ]);
       //  return response()->noContent();
-            return redirect()->back()->with('message', 'DATA DISIMPAN');    
+      //      return redirect()->back()->with('message', 'DATA DISIMPAN');    
      
         //dd($namasekolah);
     }
