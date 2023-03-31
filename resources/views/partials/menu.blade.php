@@ -68,7 +68,7 @@
                     <li class="nav-item">
                         <a href="{{ url('paparcalon.url') }}" class="nav-link">
                             <i class="nav-icon fas fa-fw fa-circle"></i>
-                            Jana Markah Calon
+                            Mengatur Sistem
                         </a>
                     </li>
 
