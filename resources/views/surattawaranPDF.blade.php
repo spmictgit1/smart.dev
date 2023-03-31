@@ -105,7 +105,7 @@
 
             <tr>
                 <td>b.Tarikh Lapor Diri/Pengesahan:</td>
-                <td style="text-align:center;"><b>6 MAC 2023 HINGGA 15 MAC 2023 </b></td>
+                <td style="text-align:center;"><b>FASA 1: 6 MAC 2023 HINGGA 15 MAC 2023 </b><br><b>RAYUAN: 3 APRIL 2023 HINGGA 7 APRIL 2023 </b></td>
             </tr>
 
             <tr>
