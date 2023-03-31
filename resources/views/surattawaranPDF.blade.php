@@ -78,7 +78,7 @@
         </main-->
         <i style="display: block; margin-left: auto; margin-right: auto; font-size: 16px; text-align: right;">
         <i>Ruj. Kami : JPM.SPS.SM.800.1/1/6 Jld.(2{{$status_rayuan}})</i><br>
-        <i>Tarikh: 6 MAC 2023 </i>
+        <i>Tarikh: 3 APRIL 2023 </i>
         </i>  
     
     <b>{{$nama}} {{$nokp}}</b>
