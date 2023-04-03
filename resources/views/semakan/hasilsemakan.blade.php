@@ -123,7 +123,7 @@
                         </tr>
                         <tr>
                             <td>Tarikh Lapor Diri/ Pengesahan:</td>
-                            <th>6 MAC 2022 HINGGA 15 MAC 2023</th>
+                            <th>3 APRIL 2023 HINGGA 7 APRIL 2023</th>
                         </tr>
                         <tr>
                             <td>Penginapan Asrama:</td>
