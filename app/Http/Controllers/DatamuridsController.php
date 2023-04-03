@@ -667,6 +667,7 @@ public function massjana()
                 'dm.KOD_SR2' => DB::raw('IFNULL(`tsr`.`KOD_SR2`, "")'),
                 'dm.NAMA_SR1' => DB::raw('IFNULL(`tsr`.`NAMA_SR1`, "")'),
                 'dm.NAMA_SR2' => DB::raw('IFNULL(`tsr`.`NAMA_SR2`, "")'),
+                'dm.STATUS_R' => "RY",
                 'dm.SEDIA' => DB::raw('IFNULL(`tsr`.`SEDIA`, "")')
             ]);
     
